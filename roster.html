@@ -1,0 +1,340 @@
+<html>
+
+<head>
+    <script src="jquery-1.11.0.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="DataTables-1.10.9/media/css/jquery.dataTables.min.css">
+    <script type="text/javascript" src="/DataTables-1.10.9/media/js/jquery.dataTables.js"></script>
+
+    <style>
+table{
+//table-layout: fixed;
+
+}
+        .custom-menu {
+            display: none;
+            z-index: 1000;
+            position: absolute;
+            overflow: hidden;
+            border: 1px solid #CCC;
+            white-space: nowrap;
+            font-family: sans-serif;
+            background: #000000;
+            color: #FFF;
+            border-radius: 5px;
+        }
+       
+	.customdiv {
+	display: none;
+	 z-index: 1000;
+         position: absolute;
+         overflow: hidden;
+         border: 1px solid #CCC   
+         white-space: nowrap;
+         font-family: sans-serif;
+         background: #000000;
+         color: #FFF;
+         border-radius: 5px;
+
+	}
+
+	table{
+  	 margin: 0 auto;
+  	 width: 100%;
+  	 clear: both;
+  	 border-collapse: collapse;
+  	 //table-layout: fixed;
+  	 word-wrap: normal;
+	 white-space: nowrap;
+	 font-family: Verdana, Geneva, sans-serif;
+	 font-size: 10;
+	}
+
+ 
+        .datemenu {
+            display: none;
+            z-index: 1000;
+            position: absolute;
+            overflow: hidden;
+            border: 1px solid #CCC;
+            white-space: nowrap;
+            font-family: sans-serif;
+            background: #000000;
+            color: #FFF;
+            border-radius: 5px;
+        }
+        
+        .custom-menu li {
+            padding: 8px 12px;
+            cursor: pointer;
+        }
+        
+        #rdo {
+            background: red;
+        }
+        
+        #training {
+            background: blue;
+        }
+        
+        #blank {
+            background: #DDDDDD;
+        }
+        
+        #annualleave {
+            background: green;
+        }
+        
+        .custom-menu li:hover {
+            background-color: #DEF;
+            border: 2px solid black;
+        }
+
+	#Publicholiday {
+            background: #ffb6c1;
+        }
+
+	#empty {
+            background: null;
+        }
+
+
+
+    </style>
+    <script>
+    	 src="jscolor.js"
+       
+	function renderfunction(cell, data, rowData, rowIndex, colIndex) {
+            if (colIndex == 0 || data == null) {
+                return data
+            } else {
+                var obj = JSON.parse(data);
+            }
+            $(cell).css("background", obj.background);
+            $(cell).text(obj.text);
+            $(cell).attr("title", obj.title);
+
+        }
+
+        function clickfunction(e) {
+	var tmp=$(temptd).text();
+	datestore = table.cell(($(temptd).parent()[0]._DT_RowIndex),0).data();
+        $(temptd).parent().children().text($(".customdiv")[0].children[1].value);
+        $(temptd).parent().children().css("background", "#" + $(".customdiv")[0].children[2].value);
+	 $(temptd).text(tmp);
+	custombackground =  $(".customdiv")[0].children[2].value;
+	columnnames = "";
+        updatecustom = '"{\\"text\\": \\"' + $(".customdiv")[0].children[1].value + '\\", \\"background\\": \\"' + $(temptd).parent().children().css("background") + '\\"}"';
+	names = $.each(cols, function (index, value){
+                                        if(index > 0){
+                                        columnnames = columnnames + value + "=" + updatecustom + ", "
+
+                                }})
+        columnnames = columnnames.substring(0, columnnames.length - 2);
+	rowdate = $($(temptd).parent().children()[0]).text();
+	customrowsql = 'update Roster set ' + columnnames + ' where Date= "' + datestore + '";';
+	 $.ajax({
+                                   url: '/cgi-bin/sql_json.pl?query=' + customrowsql,
+                                    dataType: "json",
+                                    success: function(result) {
+                                        $(".customdiv").hide(100);
+                                    }
+                                });
+
+	}
+	function datemenu(e) {
+            
+            e.preventDefault();
+            $(".datemenu").finish().toggle(100).
+            css({
+                top: event.pageY + "px",
+                left: event.pageX + "px"
+            });
+            e.stopImmediatePropagation();
+
+            return false;
+
+        };
+
+    function clickdate(e) { //when clicking a context menu option, update the text and background of the cell, then write the change to the database
+				 var tmp=$(temptd).text();
+				datestore = table.cell(($(temptd).parent()[0]._DT_RowIndex),0).data();
+                                $(temptd).parent().children().text($(this).text());
+				$(temptd).text(tmp);
+                               $(temptd).parent().children().css("background", $(this).css("background"));
+                               columnnames = "";
+				updatecells = '"{\\"text\\": \\"' + $(this).text() + '\\", \\"background\\": \\"' + $(this).css("background") + '\\"}"';
+				names = $.each(cols, function (index, value){
+					if(index > 0){
+					columnnames = columnnames + value + "=" + updatecells + ", "
+
+	 $(temptd).text(tmp);			}}) 
+				columnnames = columnnames.substring(0, columnnames.length - 2);
+				rowdate = $($(temptd).parent().children()[0]).text();
+				$(temptd).attr("title", (document.getElementById("myText").value));
+                              
+				rowsql = 'update Roster set ' + columnnames + ' where Date= "' + datestore + '";';
+				 // var name = columns[$(temptd)[0].cellIndex].title
+                                //daterow = $($(temptd).parent().children()[0]).text(); //store the date for use in the 'where' sql command to define the row
+
+                                //sql = "update Roster set " + name + " = '" + updatecell + "' where Date = '" + daterow + "'"; //sql command stored in a  variable using the other variables defined above
+                                $.ajax({
+                                   url: '/cgi-bin/sql_json.pl?query=' + rowsql,
+                                    dataType: "json",
+                                    success: function(result) {
+                                        $(".datemenu").hide(100);
+                                    }
+                                });
+                            };
+                           $("#custom").off("click"); //not working cause click function is custom-menu only
+
+function renderDate(data){
+var d=new Date(data);
+return d.toDateString();
+}
+
+
+
+
+
+
+
+    </SCRIPT>
+
+</head>
+
+<body>
+    <script>
+        columns = [];
+        var table ;
+	cols = [];
+        $(document).ready(function() {
+
+
+            $.ajax({ //call the perl script with an sql command to display the entire database
+                url: '/cgi-bin/sql_json.pl?query=select * from Roster;',
+                dataType: "json",
+                success: function(result) { //Store result in global variable, to acess later for use in getting the cloumn to use !@@!@!@@@@!@!@!@!@*!@***@!*@@!@!**!@@@@@@@@@@@@@@@@@@@@@
+                cols = result.cols;  
+		  $.each(result.cols, function(k, v) {
+                        columns[k] = {
+                            title: v,
+                            createdCell: renderfunction,
+			    orderable: false	
+                        };
+                    });
+		    columns[0]["type"]="date";	
+		  //  columns[0]["width"]="25%";
+		    columns[0]["render"]=renderDate;	
+	            columns[0]["orderable"]=false;    		
+                    table = $('#rostertable').DataTable({
+                        paging: false,
+			columns: columns,
+                        data: result.data,
+                        initComplete: function(settings, json) { //when the datatable is loaded we make a custom context menu
+			$(this.DataTable().cells(":contains(Sat)").nodes()).siblings().css("background","cyan");
+			 $(this.DataTable().cells(":contains(Sun)").nodes()).siblings().css("background","cyan");
+                            $(document).bind("mousedown", function(e) { //when left clicking outside of the context menu, hide the conext menu
+
+                                $("tr :not(:first-child):not(th)").bind('contextmenu', function(e) {
+
+                                    temptd = this;
+                                    e.preventDefault();
+                                    $(".custom-menu").finish().toggle(100).
+                                    css({
+                                            top: event.pageY + "px",
+                                            left: event.pageX + "px"
+                                        })
+                                        //      e.stopImmediatePropagation();
+                                });
+
+                                $("tr :first-child").bind('contextmenu', datemenu);
+                                if (!$(e.target).parents(".custom-menu, .datemenu, .customdiv").length > 0) {
+                                    $(".custom-menu").hide(100);
+				$(".datemenu").hide(100);
+                               // $(".customdiv").hide(100);
+				}
+
+                            });
+			$("td").on( 'dblclick',  function (e) {
+			temptd = this;
+			if($(this)[0].cellIndex == 0){
+		          //if ($(this).hasClass("editCell")) { return;}	 //return if this cell is already being edited.
+ 			  //$(this).addClass("editCell");
+		        $(".customdiv").finish().toggle(100).
+                                    css({
+                                            top: event.pageY + "px",
+                                            left: event.pageX + "px"
+                                        })
+	
+			} else
+			if($(this)[0].cellIndex > 0){
+			}
+
+									});
+
+			$(".datemenu li").click(clickdate);
+                            $(".custom-menu li").click(function(e) { //when clicking a context menu option, update the text and background of the cell, then write the change to the database
+
+                                $(temptd).text($(this).text());
+                                $(temptd).css("background", $(this).css("background"));
+                                $(temptd).attr("title", (document.getElementById("myText").value));
+                                var name = columns[$(temptd)[0].cellIndex].title
+                                updatecell = '{"background":' + '"' + $(temptd).css("background") + '", ' + '"text":"' + $(temptd).text().replace('"', '') + '"' + ',' + '"' + 'title":' + '"' + $(temptd).attr("title") + '"' + '}'; //making update cell variable to store the background colour and text inside the cell thats going to be updated
+                                //daterow = $($(temptd).parent().children()[0]).text(); //store the date for use in the 'where' sql command to define the row
+				daterow = table.cell(($(temptd).parent()[0]._DT_RowIndex),0).data();
+                                sql = "update Roster set " + name + " = '" + updatecell + "' where Date = '" + daterow + "'"; //sql command stored in a  variable using the other variables defined above
+                                $.ajax({
+                                    url: '/cgi-bin/sql_json.pl?query=' + sql,
+                                    dataType: "json",
+                                    success: function(result) {
+                                        $(".custom-menu").hide(100);
+                                    }
+                                });
+                            });
+                            $("#comment").off("click");
+                        }
+                    });
+                }
+            });
+
+                        //$(table.cells(":contains(Sat)").nodes()).siblings().css("background","orange");//mark weekends
+                        //$(table.cells(":contains(Sun)").nodes()).siblings().css("background","orange");
+        });
+    </script>
+
+<div class='customdiv'>
+<script src="jscolor.js"></script>
+
+ <input type="text" id="customtext" value="">
+ <input name="color2" type="hidden" id="color_value" value="99cc00"> 
+ <button class="jscolor {valueElement: 'color_value'}">Pick a color</button> 
+ <input id="custombutton" type="button" value="Submit"  onclick="clickfunction();" /> 
+
+
+
+</div>
+
+    <ul class='custom-menu'>
+        <li id=blank> </li>
+        <li id=rdo>RDO</li>
+        <li id=annualleave>Annual Leave</li>
+        <li id=training> Training</li>
+        <li id=comment> <input type="text" id="myText" value=""></li>
+    </ul>
+
+    <ul class='datemenu'>
+        <li id=empty> </li>
+        <li id=Publicholiday>Public Holiday</li>
+        <li id=test> Test</li>
+        <li id=custom>Custom</li>
+    </ul>
+
+    <br>
+    <table id=rostertable class="stripe cell-border" class=hover>
+        <THEAD>
+            <TR></TR>
+        </THEAD>
+        <TBODY></TBODY>
+    </table>
+
+</html>
