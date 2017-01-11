@@ -3,14 +3,117 @@
 <head>
     <script src="jquery-1.11.0.min.js"></script>
     <link rel="stylesheet" type="text/css" href="DataTables-1.10.9/media/css/jquery.dataTables.min.css">
+<link rel="stylesheet" type="text/css" href="fixedHeader.dataTables.min.css">
     <script type="text/javascript" src="/DataTables-1.10.9/media/js/jquery.dataTables.js"></script>
-
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<script type="text/javascript" src="/dataTables.fixedHeader.min.js"></script>
     <style>
-table{
-//table-layout: fixed;
+       
+		.ui-droppable{
+		color: white;
+		} 
 
+		body{
+			font-family: 'Trebuchet MS', serif;
+			line-height: 1.6
+		}
+
+		#tools {
+	display: none;
 }
-        .custom-menu {
+
+		ul.tabs{
+			margin: 0px;
+			padding: 0px;
+			list-style: none;
+		}
+		ul.tabs li{
+			background: none;
+			color: #222;
+			display: inline-block;
+			padding: 10px 15px;
+			cursor: pointer;
+		}
+
+		ul.tabs li.current{
+			background: #ededed;
+			color: #222;
+		}
+
+		.tab-content{
+			display: none;
+			background: #ededed;
+			//padding: 15px;
+		}
+
+		.tab-content.current{
+			display: inherit;
+}
+
+	 .draggable {
+        width: 8px;
+        height: 8px;
+        position: absolute;
+        bottom: 0;
+        /* top: 0; */
+        right: 0;
+        /* left: 0; */
+        z-index: 10;
+        text-align: right;
+        vertical-align: bottom;
+        display: inline-block;
+	cursor:crosshair;
+        background: black;
+    }
+    
+    td {
+        position: relative;
+        width: 40px;
+        height: 20px
+	-webkit-touch-callout: none; /* iOS Safari */
+    	-webkit-user-select: none; /* Chrome/Safari/Opera */
+     	-khtml-user-select: none; /* Konqueror */
+       	-moz-user-select: none; /* Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+    }
+    
+    .yellow {
+        background: yellow;
+    }
+    
+    table {
+        position: relative;
+    }
+    
+    .dragover {
+        border-color: red;
+    }
+   .dragged {
+
+	     border-color: #FF0000 !important;
+             border-width:1px !important; 
+             border-style:solid !important;
+}
+
+   .to{
+	  border-color: #00FF00 !important;
+          border-width:2px !important;
+          border-style:solid !important;
+
+	}
+
+   .from{
+	  border-color: #0000FF !important;
+          border-width:2px !important;
+          border-style:solid !important;
+
+	}	
+
+	 .weekend{
+	background:lightgray;
+	
+	} 
+	.custom-menu {
             display: none;
             z-index: 1000;
             position: absolute;
@@ -37,11 +140,24 @@ table{
 
 	}
 
+	 .dragdrop {
+         display: none;
+         z-index: 1000;
+         position: absolute;
+         overflow: hidden;
+         border: 1px solid #CCC
+         white-space: nowrap;
+         font-family: sans-serif;
+         background: #000000;
+         color: #FFF;
+         border-radius: 5px;
+	}
+
 	table{
   	 margin: 0 auto;
   	 width: 100%;
   	 clear: both;
-  	 border-collapse: collapse;
+  	 border-collapse: separate;
   	 //table-layout: fixed;
   	 word-wrap: normal;
 	 white-space: nowrap;
@@ -49,7 +165,8 @@ table{
 	 font-size: 10;
 	}
 
- 
+	
+	 
         .datemenu {
             display: none;
             z-index: 1000;
@@ -64,225 +181,558 @@ table{
         }
         
         .custom-menu li {
-            padding: 8px 12px;
+	    list-style-type: none;
+            padding: 4px 12px;
             cursor: pointer;
-        }
+	    padding-left: 0;        
+	    font-size: 12;
+	}	
         
-        #rdo {
+       
+	#sick {
+            background: black;
+        }
+
+
+
+	 #rdo {
             background: red;
         }
-        
+
+         #lsl {
+            background: purple;
+        }
+
+	 #family {
+            background: brown;
+        }
+
+
         #training {
             background: blue;
         }
         
         #blank {
-            background: #DDDDDD;
-        }
+            background: #FFF;
+	height: 15px;
+
+	}
         
         #annualleave {
             background: green;
         }
-        
+       
+
+
+ 	.datemenu li:hover {
+            background-color: grey;
+            border: 2px solid black;
+        }
+
+        .datemenu li {
+            padding: 8px 12px;
+            cursor: pointer;
+            font size: 12;
+	}
+
+
+ 
         .custom-menu li:hover {
             background-color: #DEF;
             border: 2px solid black;
         }
 
 	#Publicholiday {
-            background: #ffb6c1;
+            background: #3674d8;
         }
 
 	#empty {
-            background: null;
+            background: #FFF;
         }
 
 
 
     </style>
     <script>
-    	 src="jscolor.js"
-       
-	function renderfunction(cell, data, rowData, rowIndex, colIndex) {
-            if (colIndex == 0 || data == null) {
-                return data
-            } else {
-                var obj = JSON.parse(data);
-            }
-            $(cell).css("background", obj.background);
-            $(cell).text(obj.text);
-            $(cell).attr("title", obj.title);
 
-        }
-
-        function clickfunction(e) {
-	var tmp=$(temptd).text();
-	datestore = table.cell(($(temptd).parent()[0]._DT_RowIndex),0).data();
-        $(temptd).parent().children().text($(".customdiv")[0].children[1].value);
-        $(temptd).parent().children().css("background", "#" + $(".customdiv")[0].children[2].value);
-	 $(temptd).text(tmp);
-	custombackground =  $(".customdiv")[0].children[2].value;
-	columnnames = "";
-        updatecustom = '"{\\"text\\": \\"' + $(".customdiv")[0].children[1].value + '\\", \\"background\\": \\"' + $(temptd).parent().children().css("background") + '\\"}"';
-	names = $.each(cols, function (index, value){
-                                        if(index > 0){
-                                        columnnames = columnnames + value + "=" + updatecustom + ", "
-
-                                }})
-        columnnames = columnnames.substring(0, columnnames.length - 2);
-	rowdate = $($(temptd).parent().children()[0]).text();
-	customrowsql = 'update Roster set ' + columnnames + ' where Date= "' + datestore + '";';
-	 $.ajax({
-                                   url: '/cgi-bin/sql_json.pl?query=' + customrowsql,
-                                    dataType: "json",
-                                    success: function(result) {
-                                        $(".customdiv").hide(100);
-                                    }
-                                });
+	function logout() {
+	$("#tools").css("display", "none");
+	$("#password").val("");
+	$("#password").css("display", "inline");
+        $("#passwordbutton").css("display", "inline");
 
 	}
-	function datemenu(e) {
-            
-            e.preventDefault();
-            $(".datemenu").finish().toggle(100).
-            css({
-                top: event.pageY + "px",
-                left: event.pageX + "px"
-            });
-            e.stopImmediatePropagation();
 
-            return false;
-
-        };
-
-    function clickdate(e) { //when clicking a context menu option, update the text and background of the cell, then write the change to the database
-				 var tmp=$(temptd).text();
-				datestore = table.cell(($(temptd).parent()[0]._DT_RowIndex),0).data();
-                                $(temptd).parent().children().text($(this).text());
-				$(temptd).text(tmp);
-                               $(temptd).parent().children().css("background", $(this).css("background"));
-                               columnnames = "";
-				updatecells = '"{\\"text\\": \\"' + $(this).text() + '\\", \\"background\\": \\"' + $(this).css("background") + '\\"}"';
-				names = $.each(cols, function (index, value){
-					if(index > 0){
-					columnnames = columnnames + value + "=" + updatecells + ", "
-
-	 $(temptd).text(tmp);			}}) 
-				columnnames = columnnames.substring(0, columnnames.length - 2);
-				rowdate = $($(temptd).parent().children()[0]).text();
-				$(temptd).attr("title", (document.getElementById("myText").value));
-                              
-				rowsql = 'update Roster set ' + columnnames + ' where Date= "' + datestore + '";';
-				 // var name = columns[$(temptd)[0].cellIndex].title
-                                //daterow = $($(temptd).parent().children()[0]).text(); //store the date for use in the 'where' sql command to define the row
-
-                                //sql = "update Roster set " + name + " = '" + updatecell + "' where Date = '" + daterow + "'"; //sql command stored in a  variable using the other variables defined above
-                                $.ajax({
-                                   url: '/cgi-bin/sql_json.pl?query=' + rowsql,
-                                    dataType: "json",
-                                    success: function(result) {
-                                        $(".datemenu").hide(100);
-                                    }
+	function showtools() {
+	if ($("#password").val() == "cipcolab") {
+	$("#password").css("display", "none");
+	$("#passwordbutton").css("display", "none");
+	$("#tools").css("display", "inline");
+	}	
+	} 	
+	function addcolumn() {
+	$.ajax({
+                           url: '/cgi-bin/sql_json.pl?query=' + "alter table Roster add column " + $("#newcolumn").val() + " varchar(255) after " + $("#afterCol").val() + ";",
+                            dataType: "json",
+                            success: function(result) {
+				location.reload();
+                            }
                                 });
-                            };
-                           $("#custom").off("click"); //not working cause click function is custom-menu only
+
+	// $.ajax({
+          //                 url: '/cgi-bin/sql_json.pl?query=' + "Update Roster set" + $("#newcolumn").val() + "=" + '"' + '";',
+            //                dataType: "json",
+              //              success: function(result) {
+                //                location.reload();
+                  //          }
+                    //            });
+
+}
+ function delColumn() {
+        $.ajax({
+                           url: '/cgi-bin/sql_json.pl?query=' + "alter table Roster drop " + $("#selColumn").val() + ";",
+                            dataType: "json",
+                            success: function(result) {
+			location.reload();                           
+ }
+                                });
+
+
+}
+
+
+	function boom() {
+	$("tr").children().not(":first-child").text("")
+	$("tr").children().not(":first-child").css("background-color", "")
+	$("tr").children().not(":first-child").addClass("changed")
+	ajaxcall();
+}
+
+ 	function copyrow(){
+	$(".from").removeClass("from")
+        $(".to").removeClass("to")
+
+	 $(".dragdrop").hide(100);
+	$(".dragged").removeClass("dragged")
+	 var step = parseInt($("#stepinput").val());
+       	 if (!step) step=1;
+
+	  for (var i = Math.min(fromCol, toCol)+1; i < Math.max(fromCol, toCol) + 2; i=i+step) {
+                            var tr=$("tr:eq(" + fromRow + ")").children("td:nth-child(" + i + ")").css("background-color", background).text(text).attr("title", title).append("<div class=draggable></div").addClass("changed");
+                                tr.children().first().draggable({scroll:true,helper:"clone"});
+
+                        }
+
+	ajaxcall()
+}
+
+	function copycolumn(){
+	 $(".dragdrop").hide(100);
+	$(".dragged").removeClass("dragged")
+	$(".from").removeClass("from")
+        $(".to").removeClass("to")
+	var step = parseInt($("#stepinput").val());
+	if (!step) step=1; 
+for (var i = Math.min(fromRow, toRow); i < Math.max(fromRow, toRow) + 1; i=i+step) {
+
+	    var col = fromCol+1;//index is zero numbered but nth-child is not
+	    var tr=$("tr:eq(" + i + ")").children("td:nth-child(" + col + ")").css("background-color", background).text(text).attr("title", title).append("<div class=draggable></div").addClass("changed");
+	   tr.children().first().draggable({scroll:true,helper:"clone"});
+
+	}
+ajaxcall()
+
+}
+
+function copycell() {
+$(to).css("background-color", $(from).css("background-color"))  
+$(to).text(from.text())
+$(to).addClass("changed")
+$(".dragdrop").hide(100);
+ajaxcall()
+$(".dragged").removeClass("dragged")
+$(".from").removeClass("from")
+$(".to").removeClass("to")
+
+}
+
+function movecell() {
+$(to).css("background-color", $(from).css("background-color"))
+$(to).text(from.text())
+$(from).css("background-color", "")
+$(from).text("")
+$(from).addClass("changed")
+$(to).addClass("changed")
+$(".dragdrop").hide(100);
+ajaxcall()
+$(".dragged").removeClass("dragged")
+$(".from").removeClass("from")
+$(".to").removeClass("to")
+
+}
+
+
+
+function ajaxcall() {
+$.each($(".changed"),function(k,v){
+
+var row = table.cell(($(v).parent()[0]._DT_RowIndex),0).data()
+var changecol = columns[$(v)[0].cellIndex].title
+
+var changecells = '"{\\"text\\": \\"' + $(v).text() + '\\", \\"background\\": \\"' + $(v).css("background-color") + '\\"}"';
+var changesql =  'update Roster set ' + changecol + '=' + changecells + 'where Date="' + row + '";';
+$(v).removeClass("changed");	
+$.ajax({
+		   url: '/cgi-bin/sql_json.pl?query=' + changesql,
+		    dataType: "json",
+		    success: function(result) {
+		    }
+			});
+
+}
+)
+
+
+}
+
+function dropped(event,ui) {
+     step=1		
+     from = $(draggedcell);//draggedcell is global
+     to = $(event.target);
+     fromCol = from[0].cellIndex;
+     toCol = to[0].cellIndex;
+     fromRow = from.parent().first()[0].rowIndex;
+     toRow = to.parent().first()[0].rowIndex;
+     background = from.first().css("background-color");
+     text = from.first().first().text();
+     title = from.first().attr("title");
+     for (var i = Math.min(fromCol, toCol)+1; i < Math.max(fromCol, toCol) + 2; i++) {
+	    $("tr:eq(" + fromRow + ")").children("td:nth-child(" + i + ")").addClass("dragged")
+ /*	    $("tr:eq(" + fromRow + ")").children("td:nth-child(" + i + ")").css({"border-color": "#FF0000",
+"border-width":"1px",
+"border-style":"solid"});
+
+*/
+
+}
+
+for (var i = Math.min(fromRow, toRow); i < Math.max(fromRow, toRow) + 1; i=i+step) {
+
+	    var col = fromCol+1;//index is zero numbered but nth-child is not
+	    $("tr:eq(" + i + ")").children("td:nth-child(" + col + ")").addClass("dragged")
+   /*         $("tr:eq(" + i + ")").children("td:nth-child(" + col + ")").css({"border-color": "#FF0000", 
+"border-width":"1px", 
+"border-style":"solid"});
+*/
+}
+	 $(to).addClass("to")
+
+	$(from).addClass("from")
+
+	$(".dragdrop").finish().toggle(100).
+		    css({
+			    top: event.pageY + "px",
+			    left: event.pageX + "px"
+			})
+
+}
+
+
+function renderfunction(cell, data, rowData, rowIndex, colIndex) {
+
+if (colIndex == 0) {return data
+}
+else if (data == null || data == "") {
+$(cell).on("mouseenter",function(e){attachCrumb(cell)});
+$(cell).on("mouseleave",function(e){detachCrumb(cell)});
+$(cell).droppable({
+drop:function(event,ui){dropped(event, ui)}
+});
+return data
+} else {
+var obj = JSON.parse(data);
+}
+$(cell).css("background-color", obj.background);
+$(cell).text(obj.text);
+$(cell).attr("title", obj.title);
+$(cell).on("mouseenter",function(e){attachCrumb(cell)});
+$(cell).on("mouseleave",function(e){detachCrumb(cell)});	
+$(cell).droppable({
+drop:function(event,ui){dropped(event, ui)}
+});	
+	
+	
+}
+function clickfunction(e) {
+var tmp=$(temptdcustom).text();
+datestore = table.cell(($(temptdcustom).parent()[0]._DT_RowIndex),0).data();
+if(custom1 == false){
+$(temptdcustom).parent().children().addClass("changed");
+$(temptdcustom).parent().children().text($(".customdiv")[0].children[1].value);
+$(temptdcustom).parent().children().css("background-color", "#" + $(".customdiv")[0].children[2].value);
+$(temptdcustom).text(tmp);
+custombackground =  $(".customdiv")[0].children[2].value;
+columnnames = "";
+updatecustom = '"{\\"text\\": \\"' + $(".customdiv")[0].children[1].value + '\\", \\"background\\": \\"' + $(temptdcustom).parent().children().css("background-color") + '\\"}"';
+names = $.each(cols, function (index, value){
+			if(index > 0){
+			columnnames = columnnames + value + "=" + updatecustom + ", "
+
+		}})
+columnnames = columnnames.substring(0, columnnames.length - 2);
+rowdate = $($(temptdcustom).parent().children()[0]).text();
+customrowsql = 'update Roster set ' + columnnames + ' where Date= "' + datestore + '";';
+$.ajax({
+		   url: '/cgi-bin/sql_json.pl?query=' + customrowsql,
+		    dataType: "json",
+		    success: function(result) {
+			$(".customdiv").hide(100);
+		    }
+		});
+
+}
+
+if(custom1){
+$(temptdcustom).text($(".customdiv")[0].children[1].value);
+$(temptdcustom).addClass("changed");
+
+$(temptdcustom).css("background-color", "#" + $(".customdiv")[0].children[2].value);
+custombackground =  $(".customdiv")[0].children[2].value;
+updatecustom = '"{\\"text\\": \\"' + $(".customdiv")[0].children[1].value + '\\", \\"background\\": \\"' + $(temptdcustom).css("background-color") + '\\"}"';
+var name = columns[$(temptdcustom)[0].cellIndex].title;
+customsql = 'update Roster set ' + name + '=' + updatecustom + ' where Date= "' + datestore + '";';
+  $.ajax({
+		   url: '/cgi-bin/sql_json.pl?query=' + customsql,
+		    dataType: "json",
+		    success: function(result) {
+			$(".customdiv").hide(100);
+		    }
+		});
+
+	}
+return false;
+}
+function datemenu(e) {
+temptdrow = this; 
+e.preventDefault();
+$(".datemenu").finish().toggle(100).
+css({
+top: event.pageY + "px",
+left: event.pageX + "px"
+});
+e.stopImmediatePropagation();
+
+return false;
+
+};
+
+function clickdate(e) { //when clicking a context menu option, update the text and background of the cell, then write the change to the database 
+		var tmp=$(temptdrow).text();
+		datestore = table.cell(($(temptdrow).parent()[0]._DT_RowIndex),0).data();
+		$(temptdrow).parent().children().text($(this).text());
+		$(temptdrow).parent().children().not(':first, :last').addClass("changed");
+
+		$(temptdrow).text(tmp);
+	       $(temptdrow).parent().children().css("background-color", $(this).css("background-color"));
+		if ($(this).is("#empty"))  $(temptdrow).parent().children().css("background-color", "none");                          
+		columnnames = "";
+		updatecells = '"{\\"text\\": \\"' + $(this).text() + '\\", \\"background\\": \\"' + $(this).css("background-color") + '\\"}"';
+		names = $.each(cols, function (index, value){
+			if(index > 0){
+			columnnames = columnnames + value + "=" + updatecells + ", "
+
+$(temptdrow).text(tmp);			}}) 
+		columnnames = columnnames.substring(0, columnnames.length - 2);
+		rowdate = $($(temptdrow).parent().children()[0]).text();
+		$(temptdrow).attr("title", (document.getElementById("myText").value));
+	      
+		rowsql = 'update Roster set ' + columnnames + ' where Date= "' + datestore + '";';
+		 // var name = columns[$(temptd)[0].cellIndex].title
+		//daterow = $($(temptd).parent().children()[0]).text(); //store the date for use in the 'where' sql command to define the row
+
+		//sql = "update Roster set " + name + " = '" + updatecell + "' where Date = '" + daterow + "'"; //sql command stored in a  variable using the other variables defined above
+	ajaxcall()
+
+	    };
+	   $("#custom").off("click");
 
 function renderDate(data){
 var d=new Date(data);
 return d.toDateString();
+}
+var draggedcell;
+function attachCrumb(c){
+$(c).addClass("crumb");
+$("<div class=draggable></div>").appendTo(c).draggable(
+{
+scroll:true,
+start:function(event,ui){
+draggedcell=ui.helper.context.parentNode; //save cell before the draggable div is destroyed. 
+}
+}
+);
+
+
+}
+function detachCrumb(c){
+
+$(".draggable").remove();
+
+
 }
 
 
 
 
 
-
-
-    </SCRIPT>
+</SCRIPT>
 
 </head>
 
 <body>
-    <script>
-        columns = [];
-        var table ;
-	cols = [];
-        $(document).ready(function() {
+<script>
+columns = [];
+var table ;
+cols = [];
+$(document).ready(function() {
 
 
-            $.ajax({ //call the perl script with an sql command to display the entire database
-                url: '/cgi-bin/sql_json.pl?query=select * from Roster;',
-                dataType: "json",
-                success: function(result) { //Store result in global variable, to acess later for use in getting the cloumn to use !@@!@!@@@@!@!@!@!@*!@***@!*@@!@!**!@@@@@@@@@@@@@@@@@@@@@
-                cols = result.cols;  
-		  $.each(result.cols, function(k, v) {
-                        columns[k] = {
-                            title: v,
-                            createdCell: renderfunction,
-			    orderable: false	
-                        };
-                    });
-		    columns[0]["type"]="date";	
-		  //  columns[0]["width"]="25%";
-		    columns[0]["render"]=renderDate;	
-	            columns[0]["orderable"]=false;    		
-                    table = $('#rostertable').DataTable({
-                        paging: false,
-			columns: columns,
-                        data: result.data,
-                        initComplete: function(settings, json) { //when the datatable is loaded we make a custom context menu
-			$(this.DataTable().cells(":contains(Sat)").nodes()).siblings().css("background","cyan");
-			 $(this.DataTable().cells(":contains(Sun)").nodes()).siblings().css("background","cyan");
-                            $(document).bind("mousedown", function(e) { //when left clicking outside of the context menu, hide the conext menu
+$.ajax({ //call the perl script with an sql command to display the entire database
+url: '/cgi-bin/sql_json.pl?query=select * from Roster;',
+dataType: "json",
+success: function(result) { //Store result in global variable, to acess later for use in getting the cloumn to use 
+cols = result.cols;  
+  $.each(result.cols, function(k, v) {
+	columns[k] = {
+	    title: v,
+	    createdCell: renderfunction,
+	    orderable: false	
+	};
+    });
+    columns[0]["type"]="date";	
+  //  columns[0]["width"]="25%";
+    columns[0]["render"]=renderDate;	
+    columns[0]["orderable"]=false;    		
+    table = $('#rostertable').DataTable({
+	fixedHeader: true,
+	paging: false,
+	columns: columns,
+	data: result.data,
+	initComplete: function(settings, json) { //when the datatable is loaded we make a custom context menu
+	$(this.DataTable().cells(":contains(Sat)").nodes()).siblings().addClass("weekend");
+	 $(this.DataTable().cells(":contains(Sun)").nodes()).siblings().addClass("weekend");
+	    $(this.DataTable().cells(":contains(Sat)").nodes()).siblings().css("background-color", "lightgray");
+	     $(this.DataTable().cells(":contains(Sun)").nodes()).siblings().css("background-color", "lightgray");
 
-                                $("tr :not(:first-child):not(th)").bind('contextmenu', function(e) {
+	    $(document).bind("mousedown", function(e) { //when left clicking outside of the context menu, hide the conext menu
 
-                                    temptd = this;
-                                    e.preventDefault();
-                                    $(".custom-menu").finish().toggle(100).
+		$("tr :not(:first-child):not(th)").bind('contextmenu', function(e) {
+		    temptd = this;
+		    e.preventDefault();
+		    $(".custom-menu").finish().toggle(100).
+		    css({
+			    top: event.pageY + "px",
+			    left: event.pageX + "px"
+			})
+			//      e.stopImmediatePropagation();
+		});
+
+		$("tr :first-child").bind('contextmenu', datemenu);
+		if ($(e.target).is( "td" )) {
+		    $(".custom-menu").hide(100);
+		$(".datemenu").hide(100);
+	       $(".customdiv").hide(100);
+		 $(".dragdrop").hide(100);
+		$(".dragged").removeClass("dragged")
+		if (typeof to !== 'undefined')$(to).removeClass("to")
+		if (typeof from !== 'undefined')$(from).removeClass("from")
+		}
+
+	    });
+
+
+
+
+	var sel = document.getElementById('selColumn');
+	var fragment = document.createDocumentFragment();
+	cols.forEach(function(column, index) {
+    		var opt = document.createElement('option');
+    		opt.innerHTML = column;
+    		opt.value = column;
+    		fragment.appendChild(opt);
+		sel.appendChild(fragment);
+	  });
+	//$("#selColumn").children()[0].remove()
+	selectedcolumn = document.getElementById("selColumn");
+	selectedcolumn.removeChild(selectedcolumn.childNodes[0]);
+	//$("#selColumn").children()[notrecall].remove()
+	selectedcolumn.removeChild(selectedcolumn.childNodes[cols.length - 1]);
+
+	 var sel = document.getElementById('afterCol');
+        var fragment = document.createDocumentFragment();
+	var countloop = 0;
+        cols.forEach(function(column, index) {
+		countloop = countloop + 1;
+		if (countloop == cols.length){ return;
+		}
+        	var opt = document.createElement('option');
+        	opt.innerHTML = column;
+        	opt.value = column;
+        	fragment.appendChild(opt);
+        	sel.appendChild(fragment);
+          });
+
+
+
+	$("td").on( 'dblclick',  function (e) {
+	temptdcustom = this;
+	if($(temptdcustom).parent().text().match("^Thu Dec 29 2016")){ 
+	$("#customtext")[0].value="Happy Birthday Tom!"
+	} else {
+	$("#customtext")[0].value=""
+	}
+	if($(this)[0].cellIndex == 0){
+	custom1 = false;
+	  //if ($(this).hasClass("editCell")) { return;}	 //return if this cell is already being edited.
+	  //$(this).addClass("editCell");
+	$(".customdiv").finish().toggle(100).
+		    css({
+			    top: event.pageY + "px",
+			    left: event.pageX + "px"
+			})
+
+	} else
+	if($(this)[0].cellIndex > 0){
+			custom1 = true;
+			$(".customdiv").finish().toggle(100).
                                     css({
                                             top: event.pageY + "px",
                                             left: event.pageX + "px"
                                         })
-                                        //      e.stopImmediatePropagation();
-                                });
 
-                                $("tr :first-child").bind('contextmenu', datemenu);
-                                if (!$(e.target).parents(".custom-menu, .datemenu, .customdiv").length > 0) {
-                                    $(".custom-menu").hide(100);
-				$(".datemenu").hide(100);
-                               // $(".customdiv").hide(100);
-				}
-
-                            });
-			$("td").on( 'dblclick',  function (e) {
-			temptd = this;
-			if($(this)[0].cellIndex == 0){
-		          //if ($(this).hasClass("editCell")) { return;}	 //return if this cell is already being edited.
- 			  //$(this).addClass("editCell");
-		        $(".customdiv").finish().toggle(100).
-                                    css({
-                                            top: event.pageY + "px",
-                                            left: event.pageX + "px"
-                                        })
-	
-			} else
-			if($(this)[0].cellIndex > 0){
+			
 			}
 
 									});
 
-			$(".datemenu li").click(clickdate);
+		var today= new Date();
+		
+		today.setDate(today.getDate() -1);
+		today=$("td:contains(" + today.toDateString() + ")");
+		$('html,body').animate({scrollTop: $(today).offset().top}, 0);
+	
+	   		$(".datemenu li").click(clickdate);
                             $(".custom-menu li").click(function(e) { //when clicking a context menu option, update the text and background of the cell, then write the change to the database
-
+				$(temptd).parent().children().not(':first').addClass("changed");
                                 $(temptd).text($(this).text());
-                                $(temptd).css("background", $(this).css("background"));
+                                $(temptd).css("background-color", $(this).css("background-color"));
+				if ($(this).is("#blank")) $(temptd).css("background-color","none");//clear cell
                                 $(temptd).attr("title", (document.getElementById("myText").value));
                                 var name = columns[$(temptd)[0].cellIndex].title
-                                updatecell = '{"background":' + '"' + $(temptd).css("background") + '", ' + '"text":"' + $(temptd).text().replace('"', '') + '"' + ',' + '"' + 'title":' + '"' + $(temptd).attr("title") + '"' + '}'; //making update cell variable to store the background colour and text inside the cell thats going to be updated
+                                updatecell = '{"background":' + '"' + $(temptd).css("background-color") + '", ' + '"text":"' + $(temptd).text().replace('"', '') + '"' + ',' + '"' + 'title":' + '"' + $(temptd).attr("title") + '"' + '}'; //making update cell variable to store the background colour and text inside the cell thats going to be updated
                                 //daterow = $($(temptd).parent().children()[0]).text(); //store the date for use in the 'where' sql command to define the row
 				daterow = table.cell(($(temptd).parent()[0]._DT_RowIndex),0).data();
-                                sql = "update Roster set " + name + " = '" + updatecell + "' where Date = '" + daterow + "'"; //sql command stored in a  variable using the other variables defined above
+                                sql = "update Roster set " + name + " = '" + updatecell + "' where Date = '" + daterow + "'"; //sql command stored in a  variable using the other variables defined above/``
                                 $.ajax({
                                     url: '/cgi-bin/sql_json.pl?query=' + sql,
                                     dataType: "json",
@@ -292,24 +742,66 @@ return d.toDateString();
                                 });
                             });
                             $("#comment").off("click");
-                        }
-                    });
+                        
+			}
+           
+			});
                 }
             });
-
-                        //$(table.cells(":contains(Sat)").nodes()).siblings().css("background","orange");//mark weekends
-                        //$(table.cells(":contains(Sun)").nodes()).siblings().css("background","orange");
+                        //$(table.cells(":contains(Sat)").nodes()).siblings().css("background-color","orange");//mark weekends
+                        //$(table.cells(":contains(Sun)").nodes()).siblings().css("background-color","orange");
         });
     </script>
+
+<script>
+$(document).ready(function(){
+	
+	$('ul.tabs li').click(function(){
+		var tab_id = $(this).attr('data-tab');
+
+		$('ul.tabs li').removeClass('current');
+		$('.tab-content').removeClass('current');
+
+		$(this).addClass('current');
+		$("#"+tab_id).addClass('current');
+	})
+
+})
+  </script>
+<body>
+<div class="container">
+<ul class="tabs">
+		<li class="tab-link current" data-tab="tab-1">Roster</li>
+		<li class="tab-link" data-tab="tab-2">Help</li>
+		<li class="tab-link" data-tab="tab-3">Admin Tools</li>
+		<li class="tab-link" data-tab="tab-4">Mystery Tab</li>
+	</ul>
+
+	<div id="tab-1" class="tab-content current">
+
+
+
+<font color = red>Minor bugs in firefox</font>  
+
 
 <div class='customdiv'>
 <script src="jscolor.js"></script>
 
- <input type="text" id="customtext" value="">
+ <input type="text" id="customtext" value=>
  <input name="color2" type="hidden" id="color_value" value="99cc00"> 
  <button class="jscolor {valueElement: 'color_value'}">Pick a color</button> 
- <input id="custombutton" type="button" value="Submit"  onclick="clickfunction();" /> 
+ <input id="custombutton" type="submit" value="Submit"  onclick="clickfunction();" /> 
 
+
+</div>
+<div class='dragdrop'>
+ <input id="MoveCell" type="submit" value="Move Cell"  onclick="movecell();" />
+
+ <input id="CopyCell" type="submit" value="Copy Cell"  onclick="copycell();" />
+ <input id="CopyCell" type="submit" value="Fill Horizontal"  onclick="copyrow();" />
+ 
+ <input id="CopyCell" type="submit" value="Fill Vertical"  onclick="copycolumn();" />
+ <input type="text" id="stepinput" placeholder="Skip every X rows">
 
 
 </div>
@@ -319,7 +811,11 @@ return d.toDateString();
         <li id=rdo>RDO</li>
         <li id=annualleave>Annual Leave</li>
         <li id=training> Training</li>
-        <li id=comment> <input type="text" id="myText" value=""></li>
+	<li id=sick> Sick</li>
+	<li id=family>Family</li>
+	<li id=lsl>Long Service Leave</li>
+
+        <li id=comment> <input type="text" placeholder="Title text here" id="myText" value=""></li>
     </ul>
 
     <ul class='datemenu'>
@@ -336,5 +832,96 @@ return d.toDateString();
         </THEAD>
         <TBODY></TBODY>
     </table>
+ 
+        </div>
+        <div id="tab-2" class="tab-content">
+<h2> General use </h2>
+<fieldset><font color=blue>Double click </font> a cell to input a custom value and colour.
+<br><font color=orange>Right click</font> a cell for a dropdown list to choose from.
+<br>
+<br><font color=blue>Double click </font> or <font color=orange>right click</font> on a <font color=red>date</font> to do the same for an entire row.
+<br><br>
+To <font color=MEDIUMSEAGREEN>Drag and Drop cells</font>, allowing you to <font color=LIGHTSLATEGRAY>move</font> it, <font color=LIGHTSLATEGRAY> copy</font> it or <font color=LIGHTSLATEGRAY>fill</font> all the cells in between, click the black box that appears when a mouse enters a cell and drag it to the cell you wish to copy, move or extend it to.
+<br></fieldset>
+<h2> I accidentally deleted the database </h2>
+<fieldset>	To populate the date column in the database if mistakes are made, run this from donalds command line:
+<br><br><font color=olive>	function dateadd { datex=$(date -d"-1 day"  +%Y-%m-%d);          for (( c=1; c<=365; c++ ));          do            mysql --database="Roster" --execute=" INSERT INTO Roster ("Date")  VALUES ('$datex')";            datex=$(date -d "$datex + 1 day"  +%Y-%m-%d);   echo $datex;         done;                 }</font>
+<br><br>
+Change "-1 day" to as far back as needed, and C<=365 to however many days you want the roster to hold
+      </fieldset>
+  </div>
+        <div id="tab-3" class="tab-content">
+<input type="text" id="password" size="25" placeholder="Enter Password">
+<input type="submit" id="passwordbutton" value="Submit" onclick="showtools();">
+<div id=tools>
+<input type="submit" value="Logout" onclick="logout();">
+
+  <fieldset>
+       Insert  <input type="text" id="newcolumn" size="25" placeholder="New column name (No spaces)"> after <select id = "afterCol"  >
+  </select>
+	<input type="submit" value="Add Column" onclick="addcolumn();">
+
+  </fieldset>
+	
+  <fieldset>
+Delete  <select id = "selColumn"  >
+  </select>
+  <input type = "button"
+    value = "Delete Column"
+	onclick="delColumn()"		/>
+
+  </fieldset>
+
+
+
+<br>
+<br>
+	<input id="BOOM" type="submit" value="BOOM"  onclick="boom();" />
+
+</div>
+	</div>
+        <div id="tab-4" class="tab-content">
+
+..........................................,,cccd$$$$$$$$$$$ccc,<br>
+.....................................,cc$$$$$$$$$$$$$$$$$$$$$$$$$cc,<br>
+...................................,d$$$$$$$$$$$$$$$$"J$$$$$$$$$$$$$$c,<br>
+.................................d$$$$$$$$$$$$$$$$$$,$".,,`?$$$$$$$$$$$$L<br>
+...............................,$$$$$$$$$$$$$$$$$$$$$',J$$$$$$$$$$$$$$$$$b<br>
+..............................,$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$i.`$h<br>
+..............................$$$$$$$$$$$$$$$$$$$$$$$$$P'...."$$$$$$$$$$$h.$$<br>
+.............................;$$$$$$$$$$$$$$$$$$$$$$$$F,....... h,?$$$$$$$$$$h$F<br>
+.............................`$$$$$$$$$$$$$$$$$$$$$$$F:........... $:)$$P",.  ...$$F<br>
+..............................?$$$$$$$$$$$$$$$$$$$$$$(........ `$$.J$$F$"d........ $$$<br>
+...............................?$$$$$$$$$$$$$$$$$$$$$h,....:P'J$$$$$$$$$F......,$"<br>
+................................?$$$$$$$$$$$$$$$$$$$$$$$ccd$$`$$$$$$h,......,d$<br>
+................................."$$$$$$$$$$$$$$$$$$$$$$$$",cdc.$$$$$$$$$$$$"<br>
+........................,uu,......`?$$$$$$$$$$$$$$$$$$$$$$$$$$$c$$$$h<br>
+.....................,d$$$$$$$cc,...`$$$$$$$$$$$$$$$$??$$$$$$$$$$$$$$$,<br>
+..................,d$$$$$$$$$$$$$$$bcccc,,??$$$$$$ccf.''`.."??$$$$??$$$$$$$<br>
+.................d$$$$$$$$$$$$$$$$$$$$$$$$$h`?$$$$$$h.............d$$$$$$$$P<br>
+................d$$$$$$$$$$$$$$$$$$$$$$$$$$$$`$$$$$$$hc,,cd$$$$$$$$P"<br>
+............=$$?$$$$$$$$P'.?$$$$$$$$$$$$$$$$$;$$$$$$$$$???????",,<br>
+...............=$$$$$$F.......`"?????$$$$$$$$$$$$$$$$$$$$$$$$$$$$$bc<br>
+...............d$$F"?$$k.,ccc$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$i<br>
+..............,ccc$$c`""u$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$P",$$$$$$$$$$$$h<br>
+.....,d$$$L..J$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$".`""$$$??$$$$$$$<br>
+...,d$$$$$$c,"$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$F.......`?J$$$$$$$'<br>
+..,$$$$$$$$$$h`$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$F...........?$$$$$$$P""=,<br>
+.,$$$F?$$$$$$$.$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$F..............3$$$$II"?$h,<br>
+.$$$$$`$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$P"...............;$$$??$$$,"?"<br>
+.$$$$F.?$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$P",z'................3$$h...?$F<br>
+........`?$$$$$$$$$$$$$$$??$$$$$$$$$PF"',d$P".................."?$F<br>
+...........""""""".........,z$$$$$$$$$$$$$P<br>
+..........................J$$$$$$$$$$$$$$F<br>
+.........................,$$$$$$$$$$$$$$F<br>
+.........................:$$$$$c?$$$$PF'<br>
+.........................`$$$$$$$P<br>
+..........................`?$$$$F<br>
+
+
+</div>
+
+ </div>
+
 
 </html>
