@@ -1,3 +1,4 @@
+<!-- Apologies for the messy code and lack of comments -->
 <html>
 
 <head>
@@ -84,7 +85,7 @@
     td {
     	color: black;
 	position: relative;
-        width: 40px;
+        width: 80px !important;
         height: 20px
 	-webkit-touch-callout: none; /* iOS Safari */
     	-webkit-user-select: none; /* Chrome/Safari/Opera */
@@ -263,9 +264,6 @@
             background-color: crimson;
         }
 
-	#tableselect {
-	display: none;
-	}
 
 	 #rdo {
             background-color: red;
@@ -330,14 +328,14 @@
 		
     </style>
     <script>
-	
  $( document ).ajaxStart(function() {
                         $("body").css("cursor", "progress");
 
-			});
+                        });
                         $( document).ajaxStop(function() {
                                 $("body").css('cursor','default');
                         });
+
 
 	function boom(){
 	 $( document ).ajaxStart(function() {
@@ -519,44 +517,29 @@ function hide() {
 	}	
 
 function copy() {
-	hide()	
-	 if ($(temptd).hasClass("nullcell")){
-        nullcopy = "true";
-        }  else {
-        nullcopy = "false";
-        }
-        copytitle = $(temptd).attr("title")
+	
+
 	bgcopy = $(temptd).css("background-color")
 	copytext = $(temptd).text()
-	if ($(temptd).hasClass("unavailable")){
-	unavailability = "true";
-	} else { 
-	unavailability = "false";
-	}
-	copyajax = '"{\\"text\\": \\"' + $(temptd).text() + '\\", \\"title\\": \\"' + $(temptd).attr("title") + '\\", \\"background\\": \\"' + $(temptd).css("background-color") + '\\", \\"unavailable\\": \\"' + $(temptd).hasClass("unavailable") + '\\"}"';
+	copytitle = $(temptd)[0].title;
+        copyavail = $(temptd).hasClass("unavailable");
+	copyajax = '"{\\"text\\": \\"' + $(temptd).text() + '\\", \\"title\\": \\"' + copytitle + '\\", \\"background\\": \\"' + $(temptd).css("background-color") + '\\", \\"unavailable\\": \\"' + $(temptd).hasClass("unavailable") + '\\"}"';
 
 
 
 	}
 
 function paste() {
-	hide()
+	
 	 rowtemp = table.cell(($(temptd).parent()[0]._DT_RowIndex),0).data()
          changecoltemp = columns[$(temptd)[0].cellIndex].title
          changesqltemp =  'update ' + thistable + ' set ' + changecoltemp + '=' + copyajax + 'where Date="' + rowtemp + '";';
 	$(temptd).css("background-color", bgcopy)
         $(temptd).text(copytext)
-	$(temptd).attr("title", copytitle)
-	if ($(temptd).attr("title") != undefined && $(temptd).attr("title") != ""){
-		$(temptd).addClass("commented");
-		}
-	if (unavailability == "true") {
-	$(temptd).addClass("unavailable");
-	}
-	 if (nullcopy == "true") {
-        $(temptd).addClass("nullcell");
-        }
-
+	$(temptd)[0].title = copytitle;
+	if(copytitle != "undefined" && copytitle != "") $(temptd).addClass("commented");
+	if(copytext != "undefined" && copytext != "" && $(temptd).hasClass("nullcell")) $(temptd).removeClass("nullcell");
+	if(copyavail) $(temptd).addClass("unavailable");
 	$.ajax({
                    url: '/cgi-bin/sql_json.pl?query=' + changesqltemp,
                     dataType: "json",
@@ -655,7 +638,7 @@ return data
 var obj = JSON.parse(data);
 }
 $(cell).css("background-color", obj.background);
-if (obj.background == "" || obj.background == "rgba(0, 0, 0, 0)") {$(cell).addClass("nullcell");
+if (obj.background == "") {$(cell).addClass("nullcell");
 }
 if (obj.unavailable == "true") {
 	$(cell).addClass("unavailable");
@@ -791,29 +774,40 @@ $(".draggable").remove();
 <body>
 <script>
 columns = [];
-var table ;
-cols = [];
-$(document).ready(function() {
+var table;
+basetable = $('table#rostertable')
 
+$(document).ready(function() {
 $.ajax({ //call the perl script with an sql command to list the table names
 url: '/cgi-bin/sql_json.pl?query=show tables;',
 dataType: "json",
 success: function(result) {
 $.each(result.data, function(k, v) {
 $("#seltable").append('<option value="' + v[0] + '">' + v[0])
-})	
+})
+choosetable();	
 }
 });
+})
 
-//function choosetable() {
-thistable = "Roster";
+function choosetable() {
+cols = [];
+if (typeof table !== 'undefined') {
+     table.destroy();
+     $("#rostertable_filter").remove()
+     $(".datatables_info").remove()
+     $('table#rostertable').remove();
+}
+$("#basetablewrapper").append("<table id=rostertable class='stripe cell-border' class=hover><THEAD><TR></TR></THEAD><TBODY></TBODY></table>")
+thistable = $("#seltable").val();
 $.ajax({ //call the perl script with an sql command to display the entire database
 url: '/cgi-bin/sql_json.pl?query=select * from ' + thistable + ';',
 dataType: "json",
 success: function(result) { //Store result in global variable, to acess later for use in getting the cloumn to use 
 cols = result.cols;  
-  $.each(result.cols, function(k, v) {
-	columns[k] = {
+columns = [[],[]] ;
+ $.each(result.cols, function(k, v) {
+	 columns[k] = {
 	    title: v,
 	    createdCell: renderfunction,
 	    orderable: false	
@@ -826,7 +820,6 @@ cols = result.cols;
     table = $('#rostertable').DataTable({
 	fixedHeader: true,
 	paging: false,
-    	bAutoWidth: false,
 	columns: columns,
 	data: result.data,
 	initComplete: function(settings, json) { //when the datatable is loaded we make a custom context menu
@@ -912,13 +905,13 @@ cols = result.cols;
 			$("#paste").click(paste);
 
                      $(".custom-menu li").click(function(e) { 
-				if (this != $("#copy1")[0]){ 
-				 $(temptd).removeClass("nullcell");
-				  $(temptd).addClass("changed");
-
-		
-                                $(temptd).text($(this).text());
+                         if(this != $("#copy1")[0]){
+			        $(temptd).addClass("changed");
+				$(temptd).text($(this).text());
 				if ($(this).hasClass("unavailable")){
+				if ($(this) != $("#blank")) {
+				if($(temptd).hasClass("nullcell")) $(temptd).removeClass("nullcell");
+				}
 				$(temptd).addClass("unavailable");
                         	} else {
 				if ($(temptd).hasClass("unavailable")) $(temptd).removeClass("unavailable");
@@ -933,12 +926,10 @@ cols = result.cols;
 				}
 				if ($("#available").is(':checked')){
        				 $(temptd).removeClass("unavailable");
-				} 		
+        			}}
                             ajaxcall()
 				hide()
-				}
 				});
-	
                             $("#comment").off("click");
                         
 			}
@@ -947,8 +938,9 @@ cols = result.cols;
                 }
             });
         
-});
+}
     </script>
+
 <script>
 $(document).ready(function(){
 	
@@ -1051,14 +1043,9 @@ $(document).ready(function(){
 
 </div>
 
+<div id="basetablewrapper">
 
-    <br>
-	<table id=rostertable class="stripe cell-border" class=hover>
-        <THEAD>
-            <TR></TR>
-        </THEAD>
-        <TBODY></TBODY>
-    </table>
+</div>
         </div>
         <div id="tab-2" class="tab-content">
 <h2> How to Use </h2>
