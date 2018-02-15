@@ -5,7 +5,7 @@
     <link rel="stylesheet" type="text/css" href="DataTables-1.10.9/media/css/jquery.dataTables.min.css">
 <link rel="stylesheet" type="text/css" href="fixedHeader.dataTables.min.css">
     <script type="text/javascript" src="/DataTables-1.10.9/media/js/jquery.dataTables.js"></script>
-    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script src="/jquery-ui.js"></script>
 <script type="text/javascript" src="/dataTables.fixedHeader.min.js"></script>
     <style>
        
@@ -172,7 +172,7 @@
             background-color: #000000;
             color: #FFF;
             border-radius: 5px;
-	    width: 180;
+	    min-width: 180;
 	    box-shadow: 10px 10px 5px grey;
 	}
        
@@ -241,7 +241,7 @@
             color: #FFF;
             border-radius: 5px;
             box-shadow: 10px 10px 5px grey;
-	
+	    min-width: 100px	
 	}
        
 	 
@@ -251,6 +251,8 @@
             cursor: pointer;
 	    padding-left: 0;        
 	    font-size: 12;
+	     min-width: 80px;
+	    min-height: 20px;
 	}	
         
        
@@ -268,7 +270,7 @@
 	}
 
 	 #rdo {
-            background-color: red;
+            background-color: red; 
         }
 
          #lsl {
@@ -279,6 +281,9 @@
             background-color: brown;
         }
 
+	 #home {
+            background-color: mediumseagreen;
+        }
 
         #training {
             background-color: blue;
@@ -313,7 +318,9 @@
  
         .custom-menu li:hover {
             border: 2px solid black;
-        }
+            min-width: 100px;
+	    min-height: 20px;
+	}
 
 	#Publicholiday {
             background-color: #3674d8;
@@ -328,17 +335,9 @@
 	color: black !important;
 	}
 		
-    </style>
+    dth: 100px
+</style>
     <script>
-	
- $( document ).ajaxStart(function() {
-                        $("body").css("cursor", "progress");
-
-			});
-                        $( document).ajaxStop(function() {
-                                $("body").css('cursor','default');
-                        });
-
 	function boom(){
 	 $( document ).ajaxStart(function() {
                                 $("#cookie").css('display','inline');
@@ -348,19 +347,19 @@
                         });
 
 	$.ajax({
-    		url : "/cgi-bin/savebeforereset.sh",
+    		url : "/cgi-bin/roster/savebeforereset.sh",
 		success : function(result){
 		location.reload();
 		}
 //	var backuprequest = new XMLHttpRequest();
-  //      backuprequest.open("GET", "/cgi-bin/savebeforereset.sh");
+  //      backuprequest.open("GET", "/cgi-bin/roster/savebeforereset.sh");
     //    backuprequest.send();
 		})
 	}	
 	
 	function restoreday(day){
 	$.ajax({
-                url : "/cgi-bin/restoreday.pl?day=" + day,
+                url : "/cgi-bin/roster/restoreday.pl?day=" + day,
                 success : function(result){
                         location.reload();
                         }
@@ -378,7 +377,7 @@
                         });
 
 	 $.ajax({
-                url : "/cgi-bin/undo.sh",
+                url : "/cgi-bin/roster/undo.sh",
                 success : function(result){
                 	location.reload();
                 	}
@@ -401,7 +400,7 @@
 	} 	
 	function addcolumn() {
 	$.ajax({
-                           url: '/cgi-bin/sql_json.pl?query=' + "alter table " + thistable + " add column " + $("#newcolumn").val() + " varchar(255) after " + $("#afterCol").val() + ";",
+                           url: '/cgi-bin/roster/sql_json.pl?query=' + "alter table " + thistable + " add column " + $("#newcolumn").val() + " varchar(255) after " + $("#afterCol").val() + ";",
                             dataType: "json",
                             success: function(result) {
 				location.reload();
@@ -409,7 +408,7 @@
                                 });
 
 	// $.ajax({
-          //                 url: '/cgi-bin/sql_json.pl?query=' + "Update" + thistable + " set" + $("#newcolumn").val() + "=" + '"' + '";',
+          //                 url: '/cgi-bin/roster/sql_json.pl?query=' + "Update" + thistable + " set" + $("#newcolumn").val() + "=" + '"' + '";',
             //                dataType: "json",
               //              success: function(result) {
                 //                location.reload();
@@ -419,7 +418,7 @@
 }
  function delColumn() {
         $.ajax({
-                           url: '/cgi-bin/sql_json.pl?query=' + "alter table " + thistable + " drop " + $("#selColumn").val() + ";",
+                           url: '/cgi-bin/roster/sql_json.pl?query=' + "alter table " + thistable + " drop " + $("#selColumn").val() + ";",
                             dataType: "json",
                             success: function(result) {
 			location.reload();                           
@@ -473,39 +472,39 @@ ajaxcall()
 }
 
 function copycell() {
-$(to).css("background-color", $(from).css("background-color"))  
-$(to).text(from.text())
-if (dropunavailable == true){
+	$(to).css("background-color", $(from).css("background-color"))  
+	$(to).text(from.text())
+	if (dropunavailable == true){
                         $(to).addClass("unavailable");
                         } else { $(to).removeClass("unavailable");}
 
-$(to).addClass("changed")
-$(".dragdrop").hide(100);
-ajaxcall()
-$(".dragged").removeClass("dragged")
-$(".from").removeClass("from")
-$(".to").removeClass("to")
+	$(to).addClass("changed")
+	$(".dragdrop").hide(100);
+	ajaxcall()
+	$(".dragged").removeClass("dragged")
+	$(".from").removeClass("from")
+	$(".to").removeClass("to")
 
 }
 
 function movecell() {
-$(to).css("background-color", $(from).css("background-color"))
-$(to).text(from.text())
-if (dropunavailable == true){
+	$(to).css("background-color", $(from).css("background-color"))
+	$(to).text(from.text())
+	if (dropunavailable == true){
                         $(to).addClass("unavailable");
                         } else { $(to).removeClass("unavailable");}
 
-$(from).css("background-color", "")
-$(from).text("")
-$(from).addClass("changed")
-$(from).removeClass("unavailable")
+	$(from).css("background-color", "")
+	$(from).text("")
+	$(from).addClass("changed")
+	$(from).removeClass("unavailable")
 
-$(to).addClass("changed")
-$(".dragdrop").hide(100);
-ajaxcall()
-$(".dragged").removeClass("dragged")
-$(".from").removeClass("from")
-$(".to").removeClass("to")
+	$(to).addClass("changed")
+	$(".dragdrop").hide(100);
+	ajaxcall()
+	$(".dragged").removeClass("dragged")
+	$(".from").removeClass("from")
+	$(".to").removeClass("to")
 
 }
 
@@ -519,20 +518,11 @@ function hide() {
 	}	
 
 function copy() {
-	hide()	
-	 if ($(temptd).hasClass("nullcell")){
-        nullcopy = "true";
-        }  else {
-        nullcopy = "false";
-        }
-        copytitle = $(temptd).attr("title")
+	
+
 	bgcopy = $(temptd).css("background-color")
 	copytext = $(temptd).text()
-	if ($(temptd).hasClass("unavailable")){
-	unavailability = "true";
-	} else { 
-	unavailability = "false";
-	}
+ 
 	copyajax = '"{\\"text\\": \\"' + $(temptd).text() + '\\", \\"title\\": \\"' + $(temptd).attr("title") + '\\", \\"background\\": \\"' + $(temptd).css("background-color") + '\\", \\"unavailable\\": \\"' + $(temptd).hasClass("unavailable") + '\\"}"';
 
 
@@ -540,25 +530,15 @@ function copy() {
 	}
 
 function paste() {
-	hide()
+	
 	 rowtemp = table.cell(($(temptd).parent()[0]._DT_RowIndex),0).data()
          changecoltemp = columns[$(temptd)[0].cellIndex].title
          changesqltemp =  'update ' + thistable + ' set ' + changecoltemp + '=' + copyajax + 'where Date="' + rowtemp + '";';
 	$(temptd).css("background-color", bgcopy)
         $(temptd).text(copytext)
-	$(temptd).attr("title", copytitle)
-	if ($(temptd).attr("title") != undefined && $(temptd).attr("title") != ""){
-		$(temptd).addClass("commented");
-		}
-	if (unavailability == "true") {
-	$(temptd).addClass("unavailable");
-	}
-	 if (nullcopy == "true") {
-        $(temptd).addClass("nullcell");
-        }
 
 	$.ajax({
-                   url: '/cgi-bin/sql_json.pl?query=' + changesqltemp,
+                   url: '/cgi-bin/roster/sql_json.pl?query=' + changesqltemp,
                     dataType: "json",
                     success: function(result) {
                     }
@@ -570,24 +550,24 @@ function paste() {
 
 
 function ajaxcall() {
-$.each($(".changed"),function(k,v){
+	$.each($(".changed"),function(k,v){
 
-var row = table.cell(($(v).parent()[0]._DT_RowIndex),0).data()
-var changecol = columns[$(v)[0].cellIndex].title
+	var row = table.cell(($(v).parent()[0]._DT_RowIndex),0).data()
+	var changecol = columns[$(v)[0].cellIndex].title
 
-var changecells = '"{\\"text\\": \\"' + $(v).text() + '\\", \\"title\\": \\"' + $(v).attr("title") + '\\", \\"background\\": \\"' + $(v).css("background-color") + '\\", \\"unavailable\\": \\"' + $(v).hasClass("unavailable") + '\\"}"';
-var changesql =  'update ' + thistable + ' set ' + changecol + '=' + changecells + 'where Date="' + row + '";';
-$(v).removeClass("changed");
+	var changecells = '"{\\"text\\": \\"' + $(v).text() + '\\", \\"title\\": \\"' + $(v).attr("title") + '\\", \\"background\\": \\"' + $(v).css("background-color") + '\\", \\"unavailable\\": \\"' + $(v).hasClass("unavailable") + '\\"}"';
+	var changesql =  'update ' + thistable + ' set ' + changecol + '=' + changecells + 'where Date="' + row + '";';
+	$(v).removeClass("changed");
 
-$.ajax({
-		   url: '/cgi-bin/sql_json.pl?query=' + changesql,
+	$.ajax({
+		   url: '/cgi-bin/roster/sql_json.pl?query=' + changesql,
 		    dataType: "json",
 		    success: function(result) {
 		    }
 			});
 
-}
-)
+	}
+	)
 
 
 }
@@ -655,7 +635,7 @@ return data
 var obj = JSON.parse(data);
 }
 $(cell).css("background-color", obj.background);
-if (obj.background == "" || obj.background == "rgba(0, 0, 0, 0)") {$(cell).addClass("nullcell");
+if (obj.background == "") {$(cell).addClass("nullcell");
 }
 if (obj.unavailable == "true") {
 	$(cell).addClass("unavailable");
@@ -673,6 +653,22 @@ drop:function(event,ui){dropped(event, ui)}
 	
 	
 }
+
+function addcomment(){
+$(temptd).attr("title", (document.getElementById("myText").value));
+$(temptd).addClass("commented");
+$(temptd).addClass("changed");
+
+ajaxcall()
+}
+
+function removecomment(){
+$(temptd).attr("title", "");
+$(temptd).removeClass("commented");
+$(temptd).addClass("changed");
+ajaxcall()
+}
+
 function clickfunction(e) {
 datestore = table.cell(($(temptdcustom).parent()[0]._DT_RowIndex),0).data();
 $(temptdrow).parent().children().removeClass("nullcell");
@@ -680,6 +676,13 @@ $(temptdrow).parent().children().removeClass("nullcell");
 $(temptdrow).parent().children().not(':first, :last, :nth(1)').addClass("changed");
 $(temptdrow).parent().children().not(':first, :last, :nth(1)').text($(".customdiv")[0].children[1].value);
 $(temptdrow).parent().children().not(':first, :last, :nth(1)').css("background-color", "#" + $(".customdiv")[0].children[2].value);
+$(temptdrow).parent().children().not(':first, :last, :nth(1)').attr("title", (document.getElementById("myText").value));
+if ($("#myText").val().length > 0) {
+                                         $(temptdrow).parent().children().not(':first, :last, :nth(1)').addClass("commented");
+                                   } else {
+                                         if ($(temptdrow).parent().children().not(':first, :last, :nth(1)').hasClass("commented")) $(temptdrow).parent().children().removeClass("commented");
+                                   }
+
 		
 ajaxcall()
 hide()	
@@ -695,6 +698,14 @@ if (!$("#available").is(':checked')){
 		if($(temptdcustom).hasClass("unavailable")) $(temptdcustom).removeClass("unavailable");
 		}
 $(temptdcustom).css("background-color", "#" + $(".customdiv2")[0].children[2].value);
+$(temptdcustom).attr("title", (document.getElementById("myText").value));
+if ($("#myText").val().length > 0) {
+                                         $(temptdcustom).addClass("commented");
+                                   } else {
+                                         if ($(temptdcustom).hasClass("commented")) $(temptdcustom).removeClass("commented");
+                                   }
+
+
 ajaxcall()
 hide();
 	}
@@ -710,8 +721,8 @@ $(temptdrow).parent().children().not(":first").addClass("dragged")
 e.preventDefault();
 $("#datediv").finish().toggle(100).
 css({
-top: event.pageY + "px",
-left: event.pageX + "px"
+top: e.pageY + "px",
+left: e.pageX + "px"
 });
 e.stopImmediatePropagation();
 
@@ -796,7 +807,7 @@ cols = [];
 $(document).ready(function() {
 
 $.ajax({ //call the perl script with an sql command to list the table names
-url: '/cgi-bin/sql_json.pl?query=show tables;',
+url: '/cgi-bin/roster/sql_json.pl?query=show tables;',
 dataType: "json",
 success: function(result) {
 $.each(result.data, function(k, v) {
@@ -804,11 +815,11 @@ $("#seltable").append('<option value="' + v[0] + '">' + v[0])
 })	
 }
 });
-
+})
 //function choosetable() {
 thistable = "Roster";
 $.ajax({ //call the perl script with an sql command to display the entire database
-url: '/cgi-bin/sql_json.pl?query=select * from ' + thistable + ';',
+url: '/cgi-bin/roster/sql_json.pl?query=select * from ' + thistable + ';',
 dataType: "json",
 success: function(result) { //Store result in global variable, to acess later for use in getting the cloumn to use 
 cols = result.cols;  
@@ -850,8 +861,8 @@ cols = result.cols;
 		    e.preventDefault();
 		    $(".mainmenu").finish().toggle(100).
 		    css({
-			    top: event.pageY + "px",
-			    left: event.pageX + "px"
+			    top: e.pageY + "px",
+			    left: e.pageX + "px"
 			})
 			//      e.stopImmediatePropagation();
 		});
@@ -912,11 +923,8 @@ cols = result.cols;
 			$("#paste").click(paste);
 
                      $(".custom-menu li").click(function(e) { 
-				if (this != $("#copy1")[0]){ 
-				 $(temptd).removeClass("nullcell");
-				  $(temptd).addClass("changed");
-
-		
+			if (!(this == $("#copy1")[0])){	$(temptd).parent().children().not(':first').addClass("changed");
+				$(temptd).parent().children().not(':first').removeClass("nullcell");
                                 $(temptd).text($(this).text());
 				if ($(this).hasClass("unavailable")){
 				$(temptd).addClass("unavailable");
@@ -933,12 +941,11 @@ cols = result.cols;
 				}
 				if ($("#available").is(':checked')){
        				 $(temptd).removeClass("unavailable");
+        			}
 				} 		
                             ajaxcall()
 				hide()
-				}
 				});
-	
                             $("#comment").off("click");
                         
 			}
@@ -947,8 +954,9 @@ cols = result.cols;
                 }
             });
         
-});
+//}
     </script>
+
 <script>
 $(document).ready(function(){
 	
@@ -998,9 +1006,11 @@ $(document).ready(function(){
 	<li class=unavailable id=sick> Sick</li>
 	<li class=unavailable id=family>Family</li>
 	<li class=unavailable id=lsl>LSL</li>
+	<li class=available id=home> Working from Home</li>
+
 	<li id=copy1> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<IMG title="Copy Cell" id="cut"  src="Editing-Copy-icon.png">  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;          <IMG title="Paste Cell" id="paste" src="content-paste-512.png"> </li>
 
-        <li id=comment> <input type="text" placeholder="Title text here" id="myText" value=""></li>
+        <li id=comment> <input type="text" placeholder="Type Comment" id="myText" value=""> <input id="commentremove" type="submit" value="X"  onclick="removecomment();" />  <input id="commentremove" type="submit" value="✓"  onclick="addcomment();" />  </li>
     </ul>
 
 <div class='customdiv2'>
@@ -1064,7 +1074,7 @@ $(document).ready(function(){
 <h2> How to Use </h2>
 <fieldset>
 <font color=orange>Right click</font> a cell for a list of options to choose from to quickly fill in a cell, or input a custom colour and text.
-<br> Right click a cell in the date column to edit an entire row at a time.
+<br> <font color=orange>Right click</font> a cell in the date column to edit an entire row at a time. Good for public holidays.
 <br><br>
 The copy and paste symbols in the right click menu allow you to copy a cell to the clipboard and paste it as many times as you want.
 
@@ -1078,7 +1088,7 @@ Commented cells are <span id=span1 title="commented!">striped</span>, hover over
 The Availability checkbox marks a cell as available or unavailable to be used for any scripts or apps looking to make use of the information. It works for both the custom input and the listed options. The roster assumes any input means you are unavailable unless marked otherwise.
 </fieldset>
 <h2> Accidentally deleted the database </h2>
-<fieldset>	To populate the date column in the database if mistakes are made, hit the RESET button in Admin Tools or run this from donalds command line to customize the values:
+<fieldset>	To populate the date column in the database if mistakes are made, hit the RESET button in Admin Tools or run this from pucq-1's (or whatever server this is hosted on if moved) command line to customize the values:
 <br><br><font color=olive>	function dateadd { datex=$(date -d"-1 day"  +%Y-%m-%d);          for (( c=1; c<=365; c++ ));          do            mysql --database="Roster" --execute=" INSERT INTO Roster ("Date")  VALUES ('$datex')";            datex=$(date -d "$datex + 1 day"  +%Y-%m-%d);   echo $datex;         done;                 }</font>
 <br><br>
 Change "-1 day" to as far back as needed, and C<=365 to however many days you want the roster to hold
